@@ -2,6 +2,7 @@
 
 package model;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -17,6 +18,9 @@ public class Movimiento {
     private static final DateTimeFormatter FORMATO_FECHA =
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
+    // =========================
+    // ATRIBUTOS
+    // =========================
     private String placa;
     private TipoVehiculo tipo;
     private LocalDateTime entrada;
@@ -68,14 +72,10 @@ public class Movimiento {
     // =========================
     public String toFile() {
 
-        return placa
-                + ";"
-                + tipo
-                + ";"
-                + entrada
-                + ";"
-                + salida
-                + ";"
+        return placa + ";"
+                + tipo + ";"
+                + entrada + ";"
+                + salida + ";"
                 + total;
     }
 
@@ -102,12 +102,31 @@ public class Movimiento {
     }
 
     // =========================
-    // FORMATEAR DINERO
+    // FORMATO DINERO
     // =========================
     private String formatearDinero(double valor) {
 
         return String.format("%,.0f", valor)
                 .replace(",", ".");
+    }
+
+    // =========================
+    // TIEMPO DE PERMANENCIA
+    // =========================
+    private String calcularPermanencia() {
+
+        Duration duracion =
+                Duration.between(entrada, salida);
+
+        long horas = duracion.toHours();
+
+        long minutos =
+                duracion.toMinutes() % 60;
+
+        return horas
+                + " hora(s) "
+                + minutos
+                + " minuto(s)";
     }
 
     // =========================
@@ -127,6 +146,11 @@ public class Movimiento {
         System.out.println(
                 "Salida  : "
                         + salida.format(FORMATO_FECHA)
+        );
+
+        System.out.println(
+                "Tiempo  : "
+                        + calcularPermanencia()
         );
 
         System.out.println(

@@ -120,10 +120,16 @@ public class Parqueadero {
         double total = horas * tarifa;
 
         System.out.println("\n===== FACTURA =====");
-        System.out.println("Placa : " + v.getPlaca());
-        System.out.println("Tipo  : " + v.getTipo());
-        System.out.println("Horas : " + horas);
-        System.out.println("Total : $" + total);
+        System.out.println("Placa  : " + v.getPlaca());
+        System.out.println("Tipo   : " + v.getTipo());
+        System.out.println("Entrada: " + v.getHoraEntrada());
+        System.out.println("Salida : " + salida);
+        System.out.println("Horas  : " + horas);
+
+        System.out.println(
+                "Total  : $"
+                        + String.format("%,.0f", total)
+                                .replace(",", "."));
 
         Movimiento movimiento = new Movimiento(
                 v.getPlaca(),
@@ -275,5 +281,63 @@ public class Parqueadero {
         if (!encontrado) {
             System.out.println("❌ No existen movimientos para esa placa");
         }
+    }
+
+        // =========================
+    // REPORTE FINANCIERO
+    // =========================
+    public void mostrarReporteFinanciero() {
+
+        double ingresosHoy = 0;
+        double ingresosMes = 0;
+        double ingresosTotales = 0;
+
+        java.time.LocalDate hoy = java.time.LocalDate.now();
+
+        for (Movimiento movimiento : historial) {
+
+            ingresosTotales += movimiento.getTotal();
+
+            if (movimiento.getSalida().toLocalDate().equals(hoy)) {
+                ingresosHoy += movimiento.getTotal();
+            }
+
+            if (movimiento.getSalida().getYear() == hoy.getYear()
+                    && movimiento.getSalida().getMonthValue() == hoy.getMonthValue()) {
+
+                ingresosMes += movimiento.getTotal();
+            }
+        }
+
+        double ticketPromedio = historial.isEmpty()
+                ? 0
+                : ingresosTotales / historial.size();
+
+        System.out.println("\n===== REPORTE FINANCIERO =====");
+
+        System.out.printf(
+                "Ingresos hoy      : $%,.0f%n",
+                ingresosHoy
+        );
+
+        System.out.printf(
+                "Ingresos este mes : $%,.0f%n",
+                ingresosMes
+        );
+
+        System.out.printf(
+                "Ingresos totales  : $%,.0f%n",
+                ingresosTotales
+        );
+
+        System.out.printf(
+                "Ticket promedio   : $%,.0f%n",
+                ticketPromedio
+        );
+
+        System.out.println(
+                "Movimientos       : "
+                        + historial.size()
+        );
     }
 }
