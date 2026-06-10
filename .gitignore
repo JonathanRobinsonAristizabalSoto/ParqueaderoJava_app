@@ -1,0 +1,9 @@
+# Compilados Java
+*.class
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
