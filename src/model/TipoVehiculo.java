@@ -4,22 +4,30 @@ package model;
 
 /**
  * Tipos de vehículo soportados por el sistema.
- * Uso de ENUM para evitar errores de texto libre.
  */
 public enum TipoVehiculo {
+
     CARRO,
     MOTO;
 
     /**
-     * Convierte un texto a enum de forma segura.
+     * Convierte texto a TipoVehiculo.
      */
     public static TipoVehiculo fromString(String value) {
 
-        if (value == null) return CARRO;
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException("Tipo de vehículo vacío");
+        }
 
-        return switch (value.trim().toLowerCase()) {
-            case "moto" -> MOTO;
-            default -> CARRO;
+        return switch (value.trim().toUpperCase()) {
+
+            case "CARRO" -> CARRO;
+            case "MOTO" -> MOTO;
+
+            default ->
+                throw new IllegalArgumentException(
+                    "Tipo de vehículo inválido: " + value
+                );
         };
     }
 }

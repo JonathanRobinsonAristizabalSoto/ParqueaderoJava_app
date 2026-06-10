@@ -2,11 +2,11 @@
 
 package service;
 
-import model.*;
-import util.AppConfig;
+import model.Movimiento;
+import model.TipoVehiculo;
+import model.Vehiculo;
 import util.FileUtil;
 
-import java.io.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,10 +22,15 @@ public class Parqueadero {
     private final ArrayList<Vehiculo> vehiculos = new ArrayList<>();
     private final ArrayList<Movimiento> historial = new ArrayList<>();
 
+    // =========================
+    // CONSTRUCTOR
+    // =========================
     public Parqueadero() {
+
         FileUtil.ensureDataFolder();
-        cargarVehiculos();
-        cargarHistorial();
+
+        vehiculos.addAll(FileUtil.cargarVehiculos());
+        historial.addAll(FileUtil.cargarHistorial());
     }
 
     // =========================
@@ -39,14 +44,21 @@ public class Parqueadero {
         }
 
         for (Vehiculo v : vehiculos) {
+
             if (v.getPlaca().equalsIgnoreCase(placa)) {
                 System.out.println("❌ Ya existe el vehículo");
                 return;
             }
         }
 
-        vehiculos.add(new Vehiculo(placa, TipoVehiculo.fromString(tipo)));
-        guardarVehiculos();
+        Vehiculo nuevo = new Vehiculo(
+                placa,
+                TipoVehiculo.fromString(tipo)
+        );
+
+        vehiculos.add(nuevo);
+
+        FileUtil.guardarVehiculos(vehiculos);
 
         System.out.println("✅ Vehículo registrado");
     }
@@ -65,7 +77,7 @@ public class Parqueadero {
     }
 
     // =========================
-    // SALIDA
+    // RETIRAR
     // =========================
     public void retirarVehiculo(String placa) {
 
@@ -80,34 +92,51 @@ public class Parqueadero {
 
         long horas = Math.max(
                 1,
-                Duration.between(v.getHoraEntrada(), salida).toHours()
+                Duration.between(
+                        v.getHoraEntrada(),
+                        salida
+                ).toHours()
         );
 
-        double tarifa = v.getTipo() == TipoVehiculo.MOTO ? 2000 : 4000;
+        double tarifa =
+                v.getTipo() == TipoVehiculo.MOTO
+                        ? 2000
+                        : 4000;
+
         double total = horas * tarifa;
 
         System.out.println("\n===== FACTURA =====");
-        System.out.println("Placa: " + v.getPlaca());
-        System.out.println("Total: $" + total);
+        System.out.println("Placa : " + v.getPlaca());
+        System.out.println("Tipo  : " + v.getTipo());
+        System.out.println("Horas : " + horas);
+        System.out.println("Total : $" + total);
 
-        historial.add(new Movimiento(
+        Movimiento movimiento = new Movimiento(
                 v.getPlaca(),
                 v.getTipo(),
                 v.getHoraEntrada(),
                 salida,
                 total
-        ));
+        );
+
+        historial.add(movimiento);
 
         vehiculos.remove(v);
 
-        guardarVehiculos();
-        guardarHistorial();
+        FileUtil.guardarVehiculos(vehiculos);
+        FileUtil.guardarHistorial(historial);
     }
 
     // =========================
     // HISTORIAL
     // =========================
     public void mostrarHistorial() {
+
+        if (historial.isEmpty()) {
+            System.out.println("No hay movimientos registrados");
+            return;
+        }
+
         historial.forEach(Movimiento::mostrarInformacion);
     }
 
@@ -117,75 +146,10 @@ public class Parqueadero {
     private Vehiculo buscar(String placa) {
 
         return vehiculos.stream()
-                .filter(v -> v.getPlaca().equalsIgnoreCase(placa))
+                .filter(v ->
+                        v.getPlaca()
+                                .equalsIgnoreCase(placa))
                 .findFirst()
                 .orElse(null);
-    }
-
-    // =========================
-    // ARCHIVOS
-    // =========================
-    private void guardarVehiculos() {
-
-        try (BufferedWriter bw = new BufferedWriter(
-                new FileWriter(AppConfig.VEHICULOS_FILE))) {
-
-            for (Vehiculo v : vehiculos) {
-                bw.write(v.toFile());
-                bw.newLine();
-            }
-
-        } catch (IOException e) {
-            System.out.println("Error vehiculos: " + e.getMessage());
-        }
-    }
-
-    private void guardarHistorial() {
-
-        try (BufferedWriter bw = new BufferedWriter(
-                new FileWriter(AppConfig.HISTORIAL_FILE))) {
-
-            for (Movimiento m : historial) {
-                bw.write(m.toFile());
-                bw.newLine();
-            }
-
-        } catch (IOException e) {
-            System.out.println("Error historial: " + e.getMessage());
-        }
-    }
-
-    private void cargarVehiculos() {
-
-        File file = new File(AppConfig.VEHICULOS_FILE);
-        if (!file.exists()) return;
-
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-
-            String line;
-            while ((line = br.readLine()) != null) {
-                vehiculos.add(Vehiculo.fromFile(line));
-            }
-
-        } catch (Exception e) {
-            System.out.println("Error load vehiculos");
-        }
-    }
-
-    private void cargarHistorial() {
-
-        File file = new File(AppConfig.HISTORIAL_FILE);
-        if (!file.exists()) return;
-
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-
-            String line;
-            while ((line = br.readLine()) != null) {
-                historial.add(Movimiento.fromFile(line));
-            }
-
-        } catch (Exception e) {
-            System.out.println("Error load historial");
-        }
     }
 }

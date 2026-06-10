@@ -5,7 +5,8 @@ package model;
 import java.time.LocalDateTime;
 
 /**
- * Registro de salida de vehículo
+ * Representa un movimiento histórico
+ * de entrada y salida de un vehículo.
  */
 public class Movimiento {
 
@@ -20,8 +21,8 @@ public class Movimiento {
             TipoVehiculo tipo,
             LocalDateTime entrada,
             LocalDateTime salida,
-            double total
-    ) {
+            double total) {
+
         this.placa = placa.toUpperCase().trim();
         this.tipo = tipo;
         this.entrada = entrada;
@@ -32,38 +33,64 @@ public class Movimiento {
     // =========================
     // GETTERS
     // =========================
-    public String getPlaca() { return placa; }
-    public TipoVehiculo getTipo() { return tipo; }
-    public LocalDateTime getEntrada() { return entrada; }
-    public LocalDateTime getSalida() { return salida; }
-    public double getTotal() { return total; }
+
+    public String getPlaca() {
+        return placa;
+    }
+
+    public TipoVehiculo getTipo() {
+        return tipo;
+    }
+
+    public LocalDateTime getEntrada() {
+        return entrada;
+    }
+
+    public LocalDateTime getSalida() {
+        return salida;
+    }
+
+    public double getTotal() {
+        return total;
+    }
 
     // =========================
     // SERIALIZACIÓN
     // =========================
+
     public String toFile() {
-        return placa + ";" + tipo + ";" + entrada + ";" + salida + ";" + total;
+        return placa + ";" +
+               tipo + ";" +
+               entrada + ";" +
+               salida + ";" +
+               total;
     }
 
     // =========================
     // DESERIALIZACIÓN
     // =========================
+
     public static Movimiento fromFile(String linea) {
 
         String[] d = linea.split(";");
 
+        if (d.length != 5) {
+            throw new IllegalArgumentException(
+                    "Formato inválido: " + linea);
+        }
+
         return new Movimiento(
                 d[0],
-                TipoVehiculo.valueOf(d[1]),
+                TipoVehiculo.fromString(d[1]),
                 LocalDateTime.parse(d[2]),
                 LocalDateTime.parse(d[3]),
-                Double.parseDouble(d[4])
-        );
+                Double.parseDouble(d[4]));
     }
 
     // =========================
-    // PRINT
+    // PRESENTACIÓN
     // =========================
+
     public void mostrarInformacion() {
 
         System.out.println("----------------------");
@@ -71,6 +98,6 @@ public class Movimiento {
         System.out.println("Tipo    : " + tipo);
         System.out.println("Entrada : " + entrada);
         System.out.println("Salida  : " + salida);
-        System.out.println("Total   : $" + total);
+        System.out.printf("Total   : $%,.0f%n", total);
     }
 }
