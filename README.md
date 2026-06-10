@@ -132,9 +132,9 @@ Parqueadero (Service - Lógica de Negocio)
             │
             ▼
 FileUtil (Util - Persistencia en Archivos)
+```
 
 ### Flujo de Trabajo
-```
 
 1. **Ingreso:** Registro de placa y tipo de vehículo. El sistema valida duplicados, lo guarda en memoria y lo escribe en el archivo activo.
 2. **Permanencia:** Control estricto del tiempo transcurrido desde el ingreso usando `LocalDateTime`.
@@ -177,4 +177,4 @@ FileUtil (Util - Persistencia en Archivos)
 
 ## 😎 Autor
 
-Proyecto desarrollado como práctica de arquitectura de software en Java, aplicando conceptos de POO, separación por capas y persistencia estructurada en archivos.
+Proyecto desarrollado por Jonathan Aristizabal como práctica de arquitectura de software en Java, aplicando conceptos de POO, separación por capas y persistencia estructurada en archivos.
