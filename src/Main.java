@@ -23,7 +23,8 @@ public class Main {
                 System.out.println("2. Listar vehículos");
                 System.out.println("3. Retirar vehículo");
                 System.out.println("4. Ver historial");
-                System.out.println("5. Salir");
+                System.out.println("5. Buscar vehículo");
+                System.out.println("6. Salir");
                 System.out.println("=================================");
                 System.out.print("Seleccione una opción: ");
 
@@ -39,6 +40,7 @@ public class Main {
                 switch (op) {
 
                     case 1 -> {
+
                         System.out.println("\n===== INGRESO VEHÍCULO =====");
 
                         System.out.print("Placa: ");
@@ -65,7 +67,7 @@ public class Main {
                             case 2 -> tipo = "MOTO";
                             default -> {
                                 System.out.println("❌ Tipo inválido");
-                                continue; // 🔥 clave
+                                continue;
                             }
                         }
 
@@ -75,14 +77,25 @@ public class Main {
                     case 2 -> p.mostrarVehiculos();
 
                     case 3 -> {
+
                         System.out.println("\n===== RETIRAR VEHÍCULO =====");
                         System.out.print("Placa: ");
+
                         p.retirarVehiculo(sc.nextLine().trim());
                     }
 
                     case 4 -> p.mostrarHistorial();
 
                     case 5 -> {
+
+                        System.out.println("\n===== BUSCAR VEHÍCULO =====");
+                        System.out.print("Placa: ");
+
+                        p.buscarVehiculo(sc.nextLine().trim());
+                    }
+
+                    case 6 -> {
+
                         System.out.println("\n👋 Saliendo del sistema...");
                         return;
                     }

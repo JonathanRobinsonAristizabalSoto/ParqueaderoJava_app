@@ -17,6 +17,11 @@ import java.util.ArrayList;
 public class Parqueadero {
 
     // =========================
+    // CONFIGURACIÓN
+    // =========================
+    private static final int CAPACIDAD_MAXIMA = 20;
+
+    // =========================
     // MEMORIA
     // =========================
     private final ArrayList<Vehiculo> vehiculos = new ArrayList<>();
@@ -43,6 +48,11 @@ public class Parqueadero {
             return;
         }
 
+        if (vehiculos.size() >= CAPACIDAD_MAXIMA) {
+            System.out.println("❌ Parqueadero lleno");
+            return;
+        }
+
         for (Vehiculo v : vehiculos) {
 
             if (v.getPlaca().equalsIgnoreCase(placa)) {
@@ -61,6 +71,8 @@ public class Parqueadero {
         FileUtil.guardarVehiculos(vehiculos);
 
         System.out.println("✅ Vehículo registrado");
+        System.out.println("🚗 Espacios ocupados: " + vehiculos.size());
+        System.out.println("🅿️ Espacios disponibles: " + getEspaciosDisponibles());
     }
 
     // =========================
@@ -73,7 +85,13 @@ public class Parqueadero {
             return;
         }
 
+        System.out.println("\n===== VEHÍCULOS ACTIVOS =====");
+
         vehiculos.forEach(Vehiculo::mostrarInformacion);
+
+        System.out.println("\nCapacidad total : " + CAPACIDAD_MAXIMA);
+        System.out.println("Ocupados        : " + vehiculos.size());
+        System.out.println("Disponibles     : " + getEspaciosDisponibles());
     }
 
     // =========================
@@ -125,6 +143,10 @@ public class Parqueadero {
 
         FileUtil.guardarVehiculos(vehiculos);
         FileUtil.guardarHistorial(historial);
+
+        System.out.println("\n✅ Vehículo retirado");
+        System.out.println("🚗 Espacios ocupados: " + vehiculos.size());
+        System.out.println("🅿️ Espacios disponibles: " + getEspaciosDisponibles());
     }
 
     // =========================
@@ -138,6 +160,41 @@ public class Parqueadero {
         }
 
         historial.forEach(Movimiento::mostrarInformacion);
+    }
+
+    // =========================
+    // BUSCAR VEHÍCULO
+    // =========================
+    public void buscarVehiculo(String placa) {
+
+        Vehiculo vehiculo = buscar(placa);
+
+        if (vehiculo == null) {
+            System.out.println("❌ Vehículo no encontrado");
+            return;
+        }
+
+        System.out.println("\n===== VEHÍCULO ENCONTRADO =====");
+
+        vehiculo.mostrarInformacion();
+    }
+
+    // =========================
+    // ESTADO PARQUEADERO
+    // =========================
+    public void mostrarEstado() {
+
+        System.out.println("\n===== ESTADO DEL PARQUEADERO =====");
+        System.out.println("Capacidad total : " + CAPACIDAD_MAXIMA);
+        System.out.println("Ocupados        : " + vehiculos.size());
+        System.out.println("Disponibles     : " + getEspaciosDisponibles());
+    }
+
+    // =========================
+    // ESPACIOS DISPONIBLES
+    // =========================
+    private int getEspaciosDisponibles() {
+        return CAPACIDAD_MAXIMA - vehiculos.size();
     }
 
     // =========================
