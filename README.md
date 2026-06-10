@@ -30,6 +30,43 @@ El sistema opera con tres tablas relacionales optimizadas dentro de sistema_parq
 
 ---
 
+## ▶️ Script SQL
+
+```text
+-- 1. Crear la base de datos
+CREATE DATABASE IF NOT EXISTS sistema_parqueadero;
+USE sistema_parqueadero;
+
+-- 2. Crear tabla de tarifas (Configuración centralizada)
+CREATE TABLE IF NOT EXISTS tarifas (
+    tipo_vehiculo VARCHAR(20) PRIMARY KEY,
+    valor_hora INT NOT NULL
+);
+
+INSERT IGNORE INTO tarifas (tipo_vehiculo, valor_hora) VALUES ('CARRO', 4000);
+INSERT IGNORE INTO tarifas (tipo_vehiculo, valor_hora) VALUES ('MOTO', 2000);
+
+-- 3. Crear tabla de vehículos activos
+CREATE TABLE IF NOT EXISTS vehiculos_activos (
+    placa VARCHAR(10) PRIMARY KEY,
+    tipo_vehiculo VARCHAR(20),
+    fecha_ingreso DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 4. Crear tabla de historial
+CREATE TABLE IF NOT EXISTS historial_movimientos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    placa VARCHAR(10),
+    tipo_vehiculo VARCHAR(20),
+    fecha_ingreso DATETIME,
+    fecha_salida DATETIME DEFAULT CURRENT_TIMESTAMP,
+    total_pagado INT
+);
+
+```
+
+---
+
 ## 📸 Capturas del Sistema
 
 ### Menú Principal
@@ -144,43 +181,6 @@ Parqueadero (Service - Orquestador Funcional)
 
 2. **Ejecutar la aplicación:**
    java -cp "bin;lib/*" Main
-
----
-
-## ▶️ Script SQL
-
-```text
--- 1. Crear la base de datos
-CREATE DATABASE IF NOT EXISTS sistema_parqueadero;
-USE sistema_parqueadero;
-
--- 2. Crear tabla de tarifas (Configuración centralizada)
-CREATE TABLE IF NOT EXISTS tarifas (
-    tipo_vehiculo VARCHAR(20) PRIMARY KEY,
-    valor_hora INT NOT NULL
-);
-
-INSERT IGNORE INTO tarifas (tipo_vehiculo, valor_hora) VALUES ('CARRO', 4000);
-INSERT IGNORE INTO tarifas (tipo_vehiculo, valor_hora) VALUES ('MOTO', 2000);
-
--- 3. Crear tabla de vehículos activos
-CREATE TABLE IF NOT EXISTS vehiculos_activos (
-    placa VARCHAR(10) PRIMARY KEY,
-    tipo_vehiculo VARCHAR(20),
-    fecha_ingreso DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
--- 4. Crear tabla de historial
-CREATE TABLE IF NOT EXISTS historial_movimientos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    placa VARCHAR(10),
-    tipo_vehiculo VARCHAR(20),
-    fecha_ingreso DATETIME,
-    fecha_salida DATETIME DEFAULT CURRENT_TIMESTAMP,
-    total_pagado INT
-);
-
-```
 
 ---
 
