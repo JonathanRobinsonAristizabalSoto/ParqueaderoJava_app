@@ -120,6 +120,7 @@ SistemaParqueadero/
 
 ### Diagrama de Dependencias (UML de Flujo)
 
+```text
 Main (Vista/Menú Consola)
             │
             ▼
@@ -133,6 +134,7 @@ Parqueadero (Service - Lógica de Negocio)
 FileUtil (Util - Persistencia en Archivos)
 
 ### Flujo de Trabajo
+```
 
 1. **Ingreso:** Registro de placa y tipo de vehículo. El sistema valida duplicados, lo guarda en memoria y lo escribe en el archivo activo.
 2. **Permanencia:** Control estricto del tiempo transcurrido desde el ingreso usando `LocalDateTime`.
