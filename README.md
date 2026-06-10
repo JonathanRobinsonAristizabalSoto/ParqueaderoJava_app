@@ -14,12 +14,9 @@ Este es un sistema de gestión de parqueadero profesional desarrollado en Java. 
 El sistema utiliza una arquitectura modular basada en capas para separar las responsabilidades:
 
 **Capa de Modelo (model):** Define las entidades del negocio (Vehículo, Movimiento, TipoVehículo).
-
 **Capa de Servicio (service):** Contiene la lógica de negocio, cálculos de tarifas y orquestación de procesos.
-
 **Capa de Utilidades/Infraestructura (util):** Gestiona la conexión a la base de datos (JDBC) y configuraciones del sistema.
-
-Capa de Interfaz (Main): Punto de entrada del usuario a través de un menú interactivo en consola
+**Capa de Interfaz** (Main): Punto de entrada del usuario a través de un menú interactivo en consola
 
 ---
 
