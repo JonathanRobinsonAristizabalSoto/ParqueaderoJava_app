@@ -1,9 +1,9 @@
 # 🚗 Sistema de Parqueadero en Java
 
 ![Java](https://img.shields.io/badge/Java-17-blue)
+![Database](https://img.shields.io/badge/Database-MySQL-blue)
 ![Architecture](https://img.shields.io/badge/Architecture-Modular__Layered-orange)
-![Status](https://img.shields.io/badge/Status-Active-brightgreen)
-![License](https://img.shields.io/badge/License-MIT-yellow)
+![Status](https://img.shields.io/badge/Status-Production__Ready-brightgreen)
 
 ## 📌 Descripción del Sistema
 
