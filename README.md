@@ -90,6 +90,7 @@ El tipo de vehículo se selecciona desde un menú interactivo en consola.
 
 ## 🏗️ Estructura del Proyecto
 
+```text
 SistemaParqueadero/
 │
 ├── src/
@@ -110,7 +111,8 @@ SistemaParqueadero/
 ├── data/
 │   ├── vehiculos.txt
 │   └── historial.txt
-└── bin/ (Generada tras compilar)
+└── bin/
+```
 
 ---
 
