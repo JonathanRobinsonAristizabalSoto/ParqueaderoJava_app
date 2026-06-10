@@ -6,10 +6,12 @@ import model.Movimiento;
 import model.TipoVehiculo;
 import model.Vehiculo;
 import util.FileUtil;
+import util.Tarifas;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Lógica del sistema de parqueadero
@@ -33,6 +35,8 @@ public class Parqueadero {
     public Parqueadero() {
 
         FileUtil.ensureDataFolder();
+
+        Tarifas.cargarTarifas();
 
         vehiculos.addAll(FileUtil.cargarVehiculos());
         historial.addAll(FileUtil.cargarHistorial());
@@ -98,52 +102,53 @@ public class Parqueadero {
     // =========================
     public void retirarVehiculo(String placa) {
 
-        Vehiculo v = buscar(placa);
+        Vehiculo vehiculo = buscar(placa);
 
-        if (v == null) {
-            System.out.println("❌ No encontrado");
+        if (vehiculo == null) {
+            System.out.println("❌ Vehículo no encontrado");
             return;
         }
 
         LocalDateTime salida = LocalDateTime.now();
 
-        long horas = Math.max(
-                1,
-                Duration.between(
-                        v.getHoraEntrada(),
-                        salida).toHours());
+        Duration duracion = Duration.between(
+        vehiculo.getHoraEntrada(),
+        salida);
 
-        double tarifa = v.getTipo() == TipoVehiculo.MOTO
-                ? 2000
-                : 4000;
+long minutos = duracion.toMinutes();
 
-        double total = horas * tarifa;
+long horasFacturadas = Math.max(
+        1,
+        (long) Math.ceil(minutos / 60.0)
+);
+
+        double tarifa = vehiculo.getTipo() == TipoVehiculo.MOTO
+                ? Tarifas.getTarifaMoto()
+                : Tarifas.getTarifaCarro();
+
+        double total = horasFacturadas * tarifa;
 
         System.out.println("\n===== FACTURA =====");
-        System.out.println("Placa  : " + v.getPlaca());
-        System.out.println("Tipo   : " + v.getTipo());
-        System.out.println("Entrada: " + v.getHoraEntrada());
-        System.out.println("Salida : " + salida);
-        System.out.println("Horas  : " + horas);
-
-        System.out.println(
-                "Total  : $"
-                        + String.format("%,.0f", total)
-                                .replace(",", "."));
+        System.out.println("Placa   : " + vehiculo.getPlaca());
+        System.out.println("Tipo    : " + vehiculo.getTipo());
+        System.out.println("Entrada : " + vehiculo.getHoraEntrada().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        System.out.println("Salida  : " + salida.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        System.out.println("Horas   : " + horasFacturadas);
+        System.out.println("Tarifa  : " + formatoMoneda(tarifa));
+        System.out.println("Total   : " + formatoMoneda(total));
 
         Movimiento movimiento = new Movimiento(
-                v.getPlaca(),
-                v.getTipo(),
-                v.getHoraEntrada(),
+                vehiculo.getPlaca(),
+                vehiculo.getTipo(),
+                vehiculo.getHoraEntrada(),
                 salida,
                 total);
 
         historial.add(movimiento);
 
-        vehiculos.remove(v);
+        vehiculos.remove(vehiculo);
 
-        FileUtil.guardarVehiculos(vehiculos);
-        FileUtil.guardarHistorial(historial);
+        guardarDatos();
 
         System.out.println("\n✅ Vehículo retirado");
         System.out.println("🚗 Espacios ocupados: " + vehiculos.size());
@@ -283,7 +288,7 @@ public class Parqueadero {
         }
     }
 
-        // =========================
+    // =========================
     // REPORTE FINANCIERO
     // =========================
     public void mostrarReporteFinanciero() {
@@ -317,28 +322,23 @@ public class Parqueadero {
 
         System.out.printf(
                 "Ingresos hoy      : $%,.0f%n",
-                ingresosHoy
-        );
+                ingresosHoy);
 
         System.out.printf(
                 "Ingresos este mes : $%,.0f%n",
-                ingresosMes
-        );
+                ingresosMes);
 
         System.out.printf(
                 "Ingresos totales  : $%,.0f%n",
-                ingresosTotales
-        );
+                ingresosTotales);
 
         System.out.printf(
                 "Ticket promedio   : $%,.0f%n",
-                ticketPromedio
-        );
+                ticketPromedio);
 
         System.out.println(
                 "Movimientos       : "
-                        + historial.size()
-        );
+                        + historial.size());
     }
 
     // =========================
@@ -352,8 +352,7 @@ public class Parqueadero {
             return;
         }
 
-        java.util.HashMap<String, Integer> ranking =
-                new java.util.HashMap<>();
+        java.util.HashMap<String, Integer> ranking = new java.util.HashMap<>();
 
         for (Movimiento movimiento : historial) {
 
@@ -361,16 +360,13 @@ public class Parqueadero {
 
             ranking.put(
                     placa,
-                    ranking.getOrDefault(placa, 0) + 1
-            );
+                    ranking.getOrDefault(placa, 0) + 1);
         }
 
-        ArrayList<java.util.Map.Entry<String, Integer>> lista =
-                new ArrayList<>(ranking.entrySet());
+        ArrayList<java.util.Map.Entry<String, Integer>> lista = new ArrayList<>(ranking.entrySet());
 
         lista.sort(
-                (a, b) -> b.getValue().compareTo(a.getValue())
-        );
+                (a, b) -> b.getValue().compareTo(a.getValue()));
 
         System.out.println("\n===== VEHÍCULOS MÁS FRECUENTES =====");
 
@@ -380,14 +376,32 @@ public class Parqueadero {
 
             System.out.println(
                     posicion +
-                    ". " +
-                    item.getKey() +
-                    " -> " +
-                    item.getValue() +
-                    " visita(s)"
-            );
+                            ". " +
+                            item.getKey() +
+                            " -> " +
+                            item.getValue() +
+                            " visita(s)");
 
             posicion++;
         }
+    }
+
+    // =========================
+    // GUARDAR DATOS
+    // =========================
+    private void guardarDatos() {
+
+        FileUtil.guardarVehiculos(vehiculos);
+        FileUtil.guardarHistorial(historial);
+    }
+
+    // =========================
+    // FORMATO MONEDA
+    // =========================
+    private String formatoMoneda(double valor) {
+
+        return "$"
+                + String.format("%,.0f", valor)
+                        .replace(",", ".");
     }
 }
