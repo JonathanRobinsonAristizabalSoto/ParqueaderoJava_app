@@ -63,8 +63,7 @@ public class Parqueadero {
 
         Vehiculo nuevo = new Vehiculo(
                 placa,
-                TipoVehiculo.fromString(tipo)
-        );
+                TipoVehiculo.fromString(tipo));
 
         vehiculos.add(nuevo);
 
@@ -112,14 +111,11 @@ public class Parqueadero {
                 1,
                 Duration.between(
                         v.getHoraEntrada(),
-                        salida
-                ).toHours()
-        );
+                        salida).toHours());
 
-        double tarifa =
-                v.getTipo() == TipoVehiculo.MOTO
-                        ? 2000
-                        : 4000;
+        double tarifa = v.getTipo() == TipoVehiculo.MOTO
+                ? 2000
+                : 4000;
 
         double total = horas * tarifa;
 
@@ -134,8 +130,7 @@ public class Parqueadero {
                 v.getTipo(),
                 v.getHoraEntrada(),
                 salida,
-                total
-        );
+                total);
 
         historial.add(movimiento);
 
@@ -203,10 +198,59 @@ public class Parqueadero {
     private Vehiculo buscar(String placa) {
 
         return vehiculos.stream()
-                .filter(v ->
-                        v.getPlaca()
-                                .equalsIgnoreCase(placa))
+                .filter(v -> v.getPlaca()
+                        .equalsIgnoreCase(placa))
                 .findFirst()
                 .orElse(null);
+    }
+
+    // =========================
+    // ESTADÍSTICAS
+    // =========================
+    public void mostrarEstadisticas() {
+
+        int carrosActivos = 0;
+        int motosActivas = 0;
+
+        for (Vehiculo v : vehiculos) {
+
+            if (v.getTipo() == TipoVehiculo.CARRO) {
+                carrosActivos++;
+            } else {
+                motosActivas++;
+            }
+        }
+
+        int carrosHistoricos = 0;
+        int motosHistoricas = 0;
+
+        double ingresosTotales = 0;
+
+        for (Movimiento m : historial) {
+
+            if (m.getTipo() == TipoVehiculo.CARRO) {
+                carrosHistoricos++;
+            } else {
+                motosHistoricas++;
+            }
+
+            ingresosTotales += m.getTotal();
+        }
+
+        System.out.println("\n===== ESTADÍSTICAS =====");
+
+        System.out.println("Vehículos activos      : " + vehiculos.size());
+        System.out.println("Movimientos históricos : " + historial.size());
+
+        System.out.println("\n----- ACTIVOS -----");
+        System.out.println("Carros activos         : " + carrosActivos);
+        System.out.println("Motos activas          : " + motosActivas);
+
+        System.out.println("\n----- HISTÓRICO -----");
+        System.out.println("Carros históricos      : " + carrosHistoricos);
+        System.out.println("Motos históricas       : " + motosHistoricas);
+
+        System.out.println("\n----- INGRESOS -----");
+        System.out.printf("Ingresos generados     : $%,.0f%n", ingresosTotales);
     }
 }
