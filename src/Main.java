@@ -1,6 +1,5 @@
-// Ruta: src/Main.java
-
 import service.Parqueadero;
+import util.Tarifas;
 import java.util.Scanner;
 
 /**
@@ -29,7 +28,8 @@ public class Main {
                 System.out.println("8. Buscar historial por placa");
                 System.out.println("9. Reporte financiero");
                 System.out.println("10. Ranking de vehículos");
-                System.out.println("11. Salir");
+                System.out.println("11. Configuración del sistema ⚙️");
+                System.out.println("12. Salir");
                 System.out.println("=================================");
                 System.out.print("Seleccione una opción: ");
 
@@ -45,9 +45,7 @@ public class Main {
                 switch (op) {
 
                     case 1 -> {
-
                         System.out.println("\n===== INGRESO VEHÍCULO =====");
-
                         System.out.print("Placa: ");
                         String placa = sc.nextLine().trim();
 
@@ -66,7 +64,6 @@ public class Main {
                         sc.nextLine();
 
                         String tipo;
-
                         switch (tipoOp) {
                             case 1 -> tipo = "CARRO";
                             case 2 -> tipo = "MOTO";
@@ -82,20 +79,16 @@ public class Main {
                     case 2 -> p.mostrarVehiculos();
 
                     case 3 -> {
-
                         System.out.println("\n===== RETIRAR VEHÍCULO =====");
                         System.out.print("Placa: ");
-
                         p.retirarVehiculo(sc.nextLine().trim());
                     }
 
                     case 4 -> p.mostrarHistorial();
 
                     case 5 -> {
-
                         System.out.println("\n===== BUSCAR VEHÍCULO =====");
                         System.out.print("Placa: ");
-
                         p.buscarVehiculo(sc.nextLine().trim());
                     }
 
@@ -104,10 +97,8 @@ public class Main {
                     case 7 -> p.mostrarEstadisticas();
 
                     case 8 -> {
-
                         System.out.println("\n===== BUSCAR HISTORIAL POR PLACA =====");
                         System.out.print("Placa: ");
-
                         p.buscarHistorialPorPlaca(sc.nextLine().trim());
                     }
 
@@ -115,7 +106,9 @@ public class Main {
 
                     case 10 -> p.mostrarRankingVehiculos();
 
-                    case 11 -> {
+                    case 11 -> menuConfiguracion(sc);
+
+                    case 12 -> {
                         System.out.println("\n👋 Saliendo del sistema...");
                         return;
                     }
@@ -123,6 +116,81 @@ public class Main {
                     default -> System.out.println("❌ Opción inválida");
                 }
             }
+        }
+    }
+
+    /**
+     * Submenú dedicado a la gestión de tarifas y parámetros globales.
+     */
+    private static void menuConfiguracion(Scanner sc) {
+        while (true) {
+            System.out.println("\n===== CONFIGURACIÓN DEL SISTEMA =====");
+            System.out.println("1. Ver tarifas actuales");
+            System.out.println("2. Cambiar tarifa de Carro");
+            System.out.println("3. Cambiar tarifa de Moto");
+            System.out.println("4. Volver al menú principal");
+            System.out.println("=====================================");
+            System.out.print("Seleccione una opción: ");
+
+            if (!sc.hasNextInt()) {
+                System.out.println("\n❌ Debes ingresar un número válido.");
+                sc.nextLine();
+                continue;
+            }
+
+            int opConfig = sc.nextInt();
+            sc.nextLine();
+
+            switch (opConfig) {
+                case 1 -> {
+                    System.out.println("\n----- TARIFAS VIGENTES -----");
+                    System.out.printf("🚗 Carro : $%,.0f por hora%n", Tarifas.getTarifaCarro());
+                    System.out.printf("🏍️ Moto  : $%,.0f por hora%n", Tarifas.getTarifaMoto());
+                }
+                case 2 -> {
+                    double nuevaTarifa = leerDoublePositivo(sc, "Ingrese nueva tarifa para CARROS por hora: $");
+                    if (nuevaTarifa >= 0) {
+                        Tarifas.setTarifaCarro(nuevaTarifa);
+                        Tarifas.guardarTarifas();
+                        System.out.println("✅ Tarifa de carro actualizada y guardada correctamente.");
+                    }
+                }
+                case 3 -> {
+                    double nuevaTarifa = leerDoublePositivo(sc, "Ingrese nueva tarifa para MOTOS por hora: $");
+                    if (nuevaTarifa >= 0) {
+                        Tarifas.setTarifaMoto(nuevaTarifa);
+                        Tarifas.guardarTarifas();
+                        System.out.println("✅ Tarifa de moto actualizada y guardada correctamente.");
+                    }
+                }
+                case 4 -> {
+                    System.out.println("Returning...");
+                    return;
+                }
+                default -> System.out.println("❌ Opción inválida");
+            }
+        }
+    }
+
+    /**
+     * Valida de forma estricta que las entradas numéricas de dinero sean correctas.
+     */
+    private static double leerDoublePositivo(Scanner sc, String mensaje) {
+        while (true) {
+            System.out.print(mensaje);
+            if (!sc.hasNextDouble()) {
+                System.out.println("❌ Error: Debes ingresar un valor numérico válido.");
+                sc.nextLine();
+                continue;
+            }
+            double valor = sc.nextDouble();
+            sc.nextLine();
+
+            if (valor < 0) {
+                System.out.println("❌ Error: La tarifa no puede ser un valor negativo.");
+                continue;
+            }
+            return valor;
         }
     }
 }

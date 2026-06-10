@@ -7,36 +7,29 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Representa un movimiento histórico
- * de entrada y salida de un vehículo.
+ * Representa un movimiento histórico de entrada y salida de un vehículo.
  */
 public class Movimiento {
 
     // =========================
-    // FORMATO FECHA
+    // FORMATO FECHA GLOBAL (UI)
     // =========================
     private static final DateTimeFormatter FORMATO_FECHA =
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     // =========================
-    // ATRIBUTOS
+    // ATRIBUTOS (Inmutables)
     // =========================
-    private String placa;
-    private TipoVehiculo tipo;
-    private LocalDateTime entrada;
-    private LocalDateTime salida;
-    private double total;
+    private final String placa;
+    private final TipoVehiculo tipo;
+    private final LocalDateTime entrada;
+    private final LocalDateTime salida;
+    private final double total;
 
     // =========================
     // CONSTRUCTOR
     // =========================
-    public Movimiento(
-            String placa,
-            TipoVehiculo tipo,
-            LocalDateTime entrada,
-            LocalDateTime salida,
-            double total) {
-
+    public Movimiento(String placa, TipoVehiculo tipo, LocalDateTime entrada, LocalDateTime salida, double total) {
         this.placa = placa.toUpperCase().trim();
         this.tipo = tipo;
         this.entrada = entrada;
@@ -68,94 +61,71 @@ public class Movimiento {
     }
 
     // =========================
-    // SERIALIZACIÓN
+    // SERIALIZACIÓN (.txt)
     // =========================
     public String toFile() {
-
-        return placa + ";"
-                + tipo + ";"
-                + entrada + ";"
-                + salida + ";"
-                + total;
+        // Guardamos explícitamente el nombre de la constante del enum (CARRO/MOTO)
+        return placa + ";" + tipo.name() + ";" + entrada + ";" + salida + ";" + total;
     }
 
     // =========================
-    // DESERIALIZACIÓN
+    // DESERIALIZACIÓN (.txt)
     // =========================
     public static Movimiento fromFile(String linea) {
-
-        String[] d = linea.split(";");
-
-        if (d.length != 5) {
-            throw new IllegalArgumentException(
-                    "Formato inválido: " + linea
-            );
+        if (linea == null || linea.isBlank()) {
+            return null;
         }
 
-        return new Movimiento(
-                d[0],
-                TipoVehiculo.fromString(d[1]),
-                LocalDateTime.parse(d[2]),
-                LocalDateTime.parse(d[3]),
-                Double.parseDouble(d[4])
-        );
+        try {
+            String[] d = linea.split(";");
+
+            if (d.length < 5) {
+                return null; // Registro incompleto en disco
+            }
+
+            String placaRecuperada = d[0].toUpperCase().trim();
+            TipoVehiculo tipoRecuperado = TipoVehiculo.valueOf(d[1].toUpperCase().trim());
+            LocalDateTime entradaRecuperada = LocalDateTime.parse(d[2].trim());
+            LocalDateTime salidaRecuperada = LocalDateTime.parse(d[3].trim());
+            double totalRecuperado = Double.parseDouble(d[4].trim());
+
+            return new Movimiento(placaRecuperada, tipoRecuperado, entradaRecuperada, salidaRecuperada, totalRecuperado);
+
+        } catch (Exception e) {
+            // Evita que un registro corrupto detenga la carga total del programa
+            System.out.println("⚠️ Error al deserializar movimiento histórico en línea: [" + linea + "]. Saltando registro.");
+            return null;
+        }
     }
 
     // =========================
     // FORMATO DINERO
     // =========================
     private String formatearDinero(double valor) {
-
-        return String.format("%,.0f", valor)
-                .replace(",", ".");
+        return String.format("%,.0f", valor).replace(",", ".");
     }
 
     // =========================
     // TIEMPO DE PERMANENCIA
     // =========================
     private String calcularPermanencia() {
-
-        Duration duracion =
-                Duration.between(entrada, salida);
-
+        Duration duracion = Duration.between(entrada, salida);
         long horas = duracion.toHours();
+        long minutos = duracion.toMinutes() % 60;
 
-        long minutos =
-                duracion.toMinutes() % 60;
-
-        return horas
-                + " hora(s) "
-                + minutos
-                + " minuto(s)";
+        return horas + " hora(s) " + minutos + " minuto(s)";
     }
 
     // =========================
     // PRESENTACIÓN
     // =========================
     public void mostrarInformacion() {
-
         System.out.println("----------------------");
         System.out.println("Placa   : " + placa);
-        System.out.println("Tipo    : " + tipo);
-
-        System.out.println(
-                "Entrada : "
-                        + entrada.format(FORMATO_FECHA)
-        );
-
-        System.out.println(
-                "Salida  : "
-                        + salida.format(FORMATO_FECHA)
-        );
-
-        System.out.println(
-                "Tiempo  : "
-                        + calcularPermanencia()
-        );
-
-        System.out.println(
-                "Total   : $"
-                        + formatearDinero(total)
-        );
+        System.out.println("Tipo    : " + tipo); // Usará el toString() limpio ("Carro"/"Moto")
+        System.out.println("Entrada : " + entrada.format(FORMATO_FECHA));
+        System.out.println("Salida  : " + salida.format(FORMATO_FECHA));
+        System.out.println("Tiempo  : " + calcularPermanencia());
+        System.out.println("Total   : $" + formatearDinero(total));
     }
 }

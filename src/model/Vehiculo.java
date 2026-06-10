@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter;
 public class Vehiculo {
 
     // =========================
-    // FORMATO FECHA
+    // FORMATO FECHA GLOBAL (UI)
     // =========================
     private static final DateTimeFormatter FORMATO_FECHA =
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
@@ -19,15 +19,14 @@ public class Vehiculo {
     // =========================
     // ATRIBUTOS
     // =========================
-    private String placa;
-    private TipoVehiculo tipo;
-    private LocalDateTime horaEntrada;
+    private final String placa;
+    private final TipoVehiculo tipo;
+    private final LocalDateTime horaEntrada;
 
     // =========================
     // CONSTRUCTOR NUEVO
     // =========================
     public Vehiculo(String placa, TipoVehiculo tipo) {
-
         this.placa = placa.toUpperCase().trim();
         this.tipo = tipo;
         this.horaEntrada = LocalDateTime.now();
@@ -36,12 +35,7 @@ public class Vehiculo {
     // =========================
     // CONSTRUCTOR DESDE ARCHIVO
     // =========================
-    public Vehiculo(
-            String placa,
-            TipoVehiculo tipo,
-            LocalDateTime horaEntrada
-    ) {
-
+    public Vehiculo(String placa, TipoVehiculo tipo, LocalDateTime horaEntrada) {
         this.placa = placa.toUpperCase().trim();
         this.tipo = tipo;
         this.horaEntrada = horaEntrada;
@@ -63,42 +57,48 @@ public class Vehiculo {
     }
 
     // =========================
-    // SERIALIZACIÓN
+    // SERIALIZACIÓN (.txt)
     // =========================
     public String toFile() {
-
-        return placa
-                + ";"
-                + tipo
-                + ";"
-                + horaEntrada;
+        // Almacenamos usando el formato ISO estándar nativo para asegurar compatibilidad estricta
+        return placa + ";" + tipo.name() + ";" + horaEntrada.toString();
     }
 
     // =========================
-    // DESERIALIZACIÓN
+    // DESERIALIZACIÓN (.txt)
     // =========================
     public static Vehiculo fromFile(String linea) {
+        if (linea == null || linea.isBlank()) {
+            return null;
+        }
 
-        String[] d = linea.split(";");
+        try {
+            String[] d = linea.split(";");
 
-        return new Vehiculo(
-                d[0],
-                TipoVehiculo.valueOf(d[1]),
-                LocalDateTime.parse(d[2])
-        );
+            if (d.length < 3) {
+                return null; // Línea incompleta o corrupta
+            }
+
+            String placaRecuperada = d[0].toUpperCase().trim();
+            TipoVehiculo tipoRecuperado = TipoVehiculo.valueOf(d[1].toUpperCase().trim());
+            LocalDateTime fechaRecuperada = LocalDateTime.parse(d[2].trim());
+
+            return new Vehiculo(placaRecuperada, tipoRecuperado, fechaRecuperada);
+
+        } catch (Exception e) {
+            // Captura errores de parseo de fechas o enums corruptos sin tumbar la app
+            System.out.println("⚠️ Error al deserializar vehículo en línea: [" + linea + "]. Saltando registro.");
+            return null;
+        }
     }
 
     // =========================
     // PRESENTACIÓN
     // =========================
     public void mostrarInformacion() {
-
         System.out.println("----------------------");
         System.out.println("Placa   : " + placa);
         System.out.println("Tipo    : " + tipo);
-        System.out.println(
-                "Entrada : "
-                        + horaEntrada.format(FORMATO_FECHA)
-        );
+        System.out.println("Entrada : " + horaEntrada.format(FORMATO_FECHA));
     }
 }
