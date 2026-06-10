@@ -1,38 +1,24 @@
-// Ruta: src/util/AppConfig.java
-
 package util;
 
-import java.io.File;
-
 /**
- * Configuración centralizada del sistema.
- * Centraliza la gestión de rutas de persistencia para garantizar portabilidad multiplataforma.
+ * Configuración centralizada de los parámetros del sistema y la base de datos.
  */
 public class AppConfig {
 
-    // Constructor privado para evitar instanciación accidental
     private AppConfig() {
-        throw new UnsupportedOperationException("Esta es una clase de configuración estática y no puede ser instanciada.");
+        throw new UnsupportedOperationException("Clase de utilidad estática.");
     }
 
     // ===================================
-    // DIRECTORIO RAÍZ DE DATOS
+    // CONFIGURACIÓN DE CONEXIÓN MYSQL
     // ===================================
-    private static final String BASE_PATH = System.getProperty("user.dir") + File.separator + "data";
+    // Asegúrate de que estos valores coincidan con tu configuración en XAMPP
+    public static final String DB_URL = "jdbc:mysql://localhost:3306/sistema_parqueadero";
+    public static final String DB_USER = "root";
+    public static final String DB_PASSWORD = ""; // Por defecto en XAMPP suele ser vacío
 
     // ===================================
-    // ARCHIVOS DE PERSISTENCIA CONSTANTES
+    // PARÁMETROS OPERATIVOS
     // ===================================
-    public static final String VEHICULOS_FILE = BASE_PATH + File.separator + "vehiculos.txt";
-    
-    public static final String HISTORIAL_FILE = BASE_PATH + File.separator + "historial.txt";
-    
-    public static final String TARIFAS_FILE = BASE_PATH + File.separator + "tarifas.txt";
-
-    // ===================================
-    // MÉTODOS DE ACCESO
-    // ===================================
-    public static String getBasePath() {
-        return BASE_PATH;
-    }
+    public static final int CAPACIDAD_MAXIMA = 20;
 }
