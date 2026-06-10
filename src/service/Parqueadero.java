@@ -340,4 +340,54 @@ public class Parqueadero {
                         + historial.size()
         );
     }
+
+    // =========================
+    // RANKING VEHÍCULOS FRECUENTES
+    // =========================
+    public void mostrarRankingVehiculos() {
+
+        if (historial.isEmpty()) {
+
+            System.out.println("\n❌ No existen movimientos registrados");
+            return;
+        }
+
+        java.util.HashMap<String, Integer> ranking =
+                new java.util.HashMap<>();
+
+        for (Movimiento movimiento : historial) {
+
+            String placa = movimiento.getPlaca();
+
+            ranking.put(
+                    placa,
+                    ranking.getOrDefault(placa, 0) + 1
+            );
+        }
+
+        ArrayList<java.util.Map.Entry<String, Integer>> lista =
+                new ArrayList<>(ranking.entrySet());
+
+        lista.sort(
+                (a, b) -> b.getValue().compareTo(a.getValue())
+        );
+
+        System.out.println("\n===== VEHÍCULOS MÁS FRECUENTES =====");
+
+        int posicion = 1;
+
+        for (java.util.Map.Entry<String, Integer> item : lista) {
+
+            System.out.println(
+                    posicion +
+                    ". " +
+                    item.getKey() +
+                    " -> " +
+                    item.getValue() +
+                    " visita(s)"
+            );
+
+            posicion++;
+        }
+    }
 }

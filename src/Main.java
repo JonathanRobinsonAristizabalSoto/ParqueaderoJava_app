@@ -28,7 +28,8 @@ public class Main {
                 System.out.println("7. Estadísticas");
                 System.out.println("8. Buscar historial por placa");
                 System.out.println("9. Reporte financiero");
-                System.out.println("10. Salir");
+                System.out.println("10. Ranking de vehículos");
+                System.out.println("11. Salir");
                 System.out.println("=================================");
                 System.out.print("Seleccione una opción: ");
 
@@ -112,7 +113,9 @@ public class Main {
 
                     case 9 -> p.mostrarReporteFinanciero();
 
-                    case 10 -> {
+                    case 10 -> p.mostrarRankingVehiculos();
+
+                    case 11 -> {
                         System.out.println("\n👋 Saliendo del sistema...");
                         return;
                     }
