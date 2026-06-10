@@ -83,14 +83,6 @@ CREATE TABLE IF NOT EXISTS historial_movimientos (
 
 ---
 
-## 🎞️ Demo del Sistema
-
-A continuación se muestra el funcionamiento completo del sistema en consola (menú interactivo, ingreso y salida de vehículos con cálculo de tarifa en tiempo real):
-
-![demo](screenshots/demo.gif)
-
----
-
 ## ⚙️ Funcionalidades
 
 * **Gestión dinámica:** Ingreso y retiro de vehículos con validación de placa.
@@ -146,7 +138,7 @@ Parqueadero (Service - Orquestador Funcional)
       └──► ConexionDB (Util - Persistencia en MySQL)
 ```
 
-### Flujo de Trabajo
+### ➤ Flujo de Trabajo
 
 1. **Ingreso de Vehículo**
 
