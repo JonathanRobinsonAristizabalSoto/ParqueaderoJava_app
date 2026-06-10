@@ -253,4 +253,27 @@ public class Parqueadero {
         System.out.println("\n----- INGRESOS -----");
         System.out.printf("Ingresos generados     : $%,.0f%n", ingresosTotales);
     }
+
+    // =========================
+    // BUSCAR HISTORIAL POR PLACA
+    // =========================
+    public void buscarHistorialPorPlaca(String placa) {
+
+        boolean encontrado = false;
+
+        System.out.println("\n===== HISTORIAL DE " + placa.toUpperCase() + " =====");
+
+        for (Movimiento movimiento : historial) {
+
+            if (movimiento.getPlaca().equalsIgnoreCase(placa)) {
+
+                movimiento.mostrarInformacion();
+                encontrado = true;
+            }
+        }
+
+        if (!encontrado) {
+            System.out.println("❌ No existen movimientos para esa placa");
+        }
+    }
 }

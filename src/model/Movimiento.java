@@ -3,6 +3,7 @@
 package model;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Representa un movimiento histórico
@@ -10,12 +11,21 @@ import java.time.LocalDateTime;
  */
 public class Movimiento {
 
+    // =========================
+    // FORMATO FECHA
+    // =========================
+    private static final DateTimeFormatter FORMATO_FECHA =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
     private String placa;
     private TipoVehiculo tipo;
     private LocalDateTime entrada;
     private LocalDateTime salida;
     private double total;
 
+    // =========================
+    // CONSTRUCTOR
+    // =========================
     public Movimiento(
             String placa,
             TipoVehiculo tipo,
@@ -33,7 +43,6 @@ public class Movimiento {
     // =========================
     // GETTERS
     // =========================
-
     public String getPlaca() {
         return placa;
     }
@@ -57,26 +66,30 @@ public class Movimiento {
     // =========================
     // SERIALIZACIÓN
     // =========================
-
     public String toFile() {
-        return placa + ";" +
-               tipo + ";" +
-               entrada + ";" +
-               salida + ";" +
-               total;
+
+        return placa
+                + ";"
+                + tipo
+                + ";"
+                + entrada
+                + ";"
+                + salida
+                + ";"
+                + total;
     }
 
     // =========================
     // DESERIALIZACIÓN
     // =========================
-
     public static Movimiento fromFile(String linea) {
 
         String[] d = linea.split(";");
 
         if (d.length != 5) {
             throw new IllegalArgumentException(
-                    "Formato inválido: " + linea);
+                    "Formato inválido: " + linea
+            );
         }
 
         return new Movimiento(
@@ -84,20 +97,41 @@ public class Movimiento {
                 TipoVehiculo.fromString(d[1]),
                 LocalDateTime.parse(d[2]),
                 LocalDateTime.parse(d[3]),
-                Double.parseDouble(d[4]));
+                Double.parseDouble(d[4])
+        );
+    }
+
+    // =========================
+    // FORMATEAR DINERO
+    // =========================
+    private String formatearDinero(double valor) {
+
+        return String.format("%,.0f", valor)
+                .replace(",", ".");
     }
 
     // =========================
     // PRESENTACIÓN
     // =========================
-
     public void mostrarInformacion() {
 
         System.out.println("----------------------");
         System.out.println("Placa   : " + placa);
         System.out.println("Tipo    : " + tipo);
-        System.out.println("Entrada : " + entrada);
-        System.out.println("Salida  : " + salida);
-        System.out.printf("Total   : $%,.0f%n", total);
+
+        System.out.println(
+                "Entrada : "
+                        + entrada.format(FORMATO_FECHA)
+        );
+
+        System.out.println(
+                "Salida  : "
+                        + salida.format(FORMATO_FECHA)
+        );
+
+        System.out.println(
+                "Total   : $"
+                        + formatearDinero(total)
+        );
     }
 }

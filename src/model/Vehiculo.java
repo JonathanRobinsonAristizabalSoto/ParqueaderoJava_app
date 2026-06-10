@@ -3,11 +3,18 @@
 package model;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Entidad Vehículo
  */
 public class Vehiculo {
+
+    // =========================
+    // FORMATO FECHA
+    // =========================
+    private static final DateTimeFormatter FORMATO_FECHA =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     // =========================
     // ATRIBUTOS
@@ -20,6 +27,7 @@ public class Vehiculo {
     // CONSTRUCTOR NUEVO
     // =========================
     public Vehiculo(String placa, TipoVehiculo tipo) {
+
         this.placa = placa.toUpperCase().trim();
         this.tipo = tipo;
         this.horaEntrada = LocalDateTime.now();
@@ -28,7 +36,12 @@ public class Vehiculo {
     // =========================
     // CONSTRUCTOR DESDE ARCHIVO
     // =========================
-    public Vehiculo(String placa, TipoVehiculo tipo, LocalDateTime horaEntrada) {
+    public Vehiculo(
+            String placa,
+            TipoVehiculo tipo,
+            LocalDateTime horaEntrada
+    ) {
+
         this.placa = placa.toUpperCase().trim();
         this.tipo = tipo;
         this.horaEntrada = horaEntrada;
@@ -53,7 +66,12 @@ public class Vehiculo {
     // SERIALIZACIÓN
     // =========================
     public String toFile() {
-        return placa + ";" + tipo + ";" + horaEntrada;
+
+        return placa
+                + ";"
+                + tipo
+                + ";"
+                + horaEntrada;
     }
 
     // =========================
@@ -78,6 +96,9 @@ public class Vehiculo {
         System.out.println("----------------------");
         System.out.println("Placa   : " + placa);
         System.out.println("Tipo    : " + tipo);
-        System.out.println("Entrada : " + horaEntrada);
+        System.out.println(
+                "Entrada : "
+                        + horaEntrada.format(FORMATO_FECHA)
+        );
     }
 }

@@ -26,7 +26,8 @@ public class Main {
                 System.out.println("5. Buscar vehículo");
                 System.out.println("6. Estado del parqueadero");
                 System.out.println("7. Estadísticas");
-                System.out.println("8. Salir");
+                System.out.println("8. Buscar historial por placa");
+                System.out.println("9. Salir");
                 System.out.println("=================================");
                 System.out.print("Seleccione una opción: ");
 
@@ -101,6 +102,14 @@ public class Main {
                     case 7 -> p.mostrarEstadisticas();
 
                     case 8 -> {
+
+                        System.out.println("\n===== BUSCAR HISTORIAL POR PLACA =====");
+                        System.out.print("Placa: ");
+
+                        p.buscarHistorialPorPlaca(sc.nextLine().trim());
+                    }
+
+                    case 9 -> {
                         System.out.println("\n👋 Saliendo del sistema...");
                         return;
                     }
