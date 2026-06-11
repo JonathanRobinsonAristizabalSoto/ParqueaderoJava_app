@@ -43,14 +43,12 @@ CREATE TABLE IF NOT EXISTS tarifas (
     valor_hora INT NOT NULL
 );
 
-INSERT IGNORE INTO tarifas (tipo_vehiculo, valor_hora) VALUES ('CARRO', 4000);
-INSERT IGNORE INTO tarifas (tipo_vehiculo, valor_hora) VALUES ('MOTO', 2000);
-
 -- 3. Crear tabla de vehículos activos
 CREATE TABLE IF NOT EXISTS vehiculos_activos (
     placa VARCHAR(10) PRIMARY KEY,
     tipo_vehiculo VARCHAR(20),
-    fecha_ingreso DATETIME DEFAULT CURRENT_TIMESTAMP
+    fecha_ingreso DATETIME DEFAULT CURRENT_TIMESTAMP,
+    usuario_responsable VARCHAR(50)
 );
 
 -- 4. Crear tabla de historial
@@ -60,7 +58,16 @@ CREATE TABLE IF NOT EXISTS historial_movimientos (
     tipo_vehiculo VARCHAR(20),
     fecha_ingreso DATETIME,
     fecha_salida DATETIME DEFAULT CURRENT_TIMESTAMP,
-    total_pagado INT
+    minutos_totales INT,
+    total_pagado INT,
+    usuario_responsable VARCHAR(50)
+);
+
+-- 5. Crear tabla de usuarios
+CREATE TABLE IF NOT EXISTS usuarios (
+    username VARCHAR(50) PRIMARY KEY,
+    password VARCHAR(50) NOT NULL,
+    rol VARCHAR(20)
 );
 
 ```
@@ -138,31 +145,34 @@ Parqueadero (Service - Orquestador Funcional)
       └──► ConexionDB (Util - Persistencia en MySQL)
 ```
 
-### ➤ Flujo de Trabajo
+### ➤ Flujo de Trabajo y Auditoría
 
-1. **Ingreso de Vehículo**
+Para garantizar la integridad y trazabilidad de las operaciones, el sistema implementa el siguiente flujo operativo:
 
-* Validación: El sistema verifica que la placa no esté registrada en el área activa.
-* Acción: Se realiza un INSERT en la tabla vehiculos_activos.
-* Resultado: El vehículo queda oficialmente registrado dentro del parqueadero.
+**Ingreso de Vehículo**
 
-2. **Permanencia y Consulta**
+* **Validación:** El sistema verifica que la placa no esté registrada en el área activa.
+* **Acción:** Se realiza un INSERT en la tabla vehiculos_activos, capturando automáticamente el usuario_responsable desde la sesión activa del operador.
+* **Resultado:** El vehículo queda registrado dentro del sistema con total trazabilidad del operador que realizó la entrada.
 
-* Acción: El usuario consulta el estado actual del sistema mediante un SELECT a la tabla vehiculos_activos.
-* Utilidad: Permite visualizar la ocupación en tiempo real y buscar vehículos específicos dentro del parqueadero.
+**Permanencia y Consulta**
 
-3. **Salida y Facturación (Transacción Crítica)**
+* **Acción:** El usuario consulta el estado actual del sistema mediante un SELECT a la tabla vehiculos_activos.
+* **Utilidad:** Permite visualizar la ocupación en tiempo real, filtrar vehículos y monitorear el tiempo de estancia.
 
-* Cálculo: Se procesa el tiempo transcurrido desde el ingreso.
-* Tarificación: Se consulta la tarifa vigente en la tabla tarifas.
-* Registro Histórico: Se realiza un INSERT en la tabla historial_movimientos con todos los detalles (entrada, salida, placa, tipo y valor pagado).
-* Liberación: Se ejecuta un DELETE en vehiculos_activos para liberar el espacio.
-* Resultado: El registro se vuelve permanente y auditable para siempre en el historial.
+**Salida y Facturación (Transacción Crítica)**
 
-4. **Gestión de Historial**
+* **Cálculo:** Se procesa el tiempo transcurrido desde el ingreso hasta el momento exacto de la salida.
+* **Tarificación:** Se consulta la tarifa vigente en la tabla tarifas según el tipo de vehículo.
+* **Registro Histórico:** Se realiza un INSERT en la tabla historial_movimientos con todos los detalles: fechas, tiempos, valor pagado y el usuario_responsable que procesó la salida.
+* **Liberación:** Se ejecuta un DELETE en vehiculos_activos mediante una transacción segura para asegurar que el espacio se libere solo si el historial se guardó exitosamente.
 
-* Acción: El usuario consulta el flujo completo mediante un SELECT a historial_movimientos.
-* Utilidad: Permite generar reportes financieros, métricas de rendimiento y búsquedas detalladas de vehículos que ya no se encuentran en las instalaciones.
+* **Resultado:** El movimiento se vuelve permanente y auditable para siempre en el historial de la empresa.
+
+**Gestión de Historial y Auditoría**
+
+* **Acción:** Consulta del flujo completo mediante un SELECT a historial_movimientos.
+* **Utilidad:** Permite generar reportes financieros precisos, métricas de rendimiento por operador y búsquedas detalladas de vehículos, manteniendo un control estricto de las operaciones financieras realizadas por cada usuario del sistema.
 
 ---
 
