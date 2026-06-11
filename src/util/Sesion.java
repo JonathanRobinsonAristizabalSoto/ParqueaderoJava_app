@@ -1,5 +1,9 @@
 package util;
 
+/**
+ * Gestiona el estado de la sesión de usuario en el sistema.
+ * Utiliza un patrón Singleton estático para persistir la identidad durante la ejecución.
+ */
 public class Sesion {
     private static String usuarioActual;
     private static String rolActual;
@@ -27,6 +31,13 @@ public class Sesion {
     }
 
     /**
+     * Verifica si existe una sesión activa actualmente.
+     */
+    public static boolean estaActiva() {
+        return usuarioActual != null;
+    }
+
+    /**
      * Evalúa de forma segura si la sesión cuenta con privilegios administrativos.
      */
     public static boolean esAdmin() {
@@ -34,7 +45,7 @@ public class Sesion {
     }
 
     /**
-     * Destruye las variables de estado limpiando la memoria al salir de la aplicación.
+     * Destruye las variables de estado limpiando la memoria al salir o cerrar sesión.
      */
     public static void cerrarSesion() {
         usuarioActual = null;

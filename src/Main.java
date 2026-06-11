@@ -37,12 +37,11 @@ public class Main {
         }
 
         try (Scanner sc = new Scanner(System.in)) {
-
             Parqueadero p = new Parqueadero();
 
             // --- BLOQUE DE AUTENTICACIÓN OBLIGATORIO ---
             System.out.println("\n=================================");
-            System.out.println("       ACCESO AL SISTEMA");
+            System.out.println("      ACCESO AL SISTEMA");
             System.out.println("=================================");
             boolean autenticado = false;
 
@@ -138,13 +137,16 @@ public class Main {
                         p.buscarVehiculo(sc.nextLine().trim().toUpperCase());
                     }
                     case 6 -> p.mostrarEstado();
+                    
+                    // --- PROTECCIÓN DE OPCIONES ADMINISTRATIVAS ---
                     case 7, 8, 9, 10, 11 -> {
                         if (Sesion.esAdmin()) {
                             ejecutarOpcionAdmin(op, p, sc);
                         } else {
-                            System.out.println("❌ Opción inválida");
+                            System.out.println("❌ Acceso denegado: Se requieren privilegios de administrador.");
                         }
                     }
+                    
                     case 12 -> {
                         System.out.println("\n👋 Saliendo del sistema...");
                         Sesion.cerrarSesion();

@@ -128,60 +128,41 @@ public class Parqueadero {
     }
 
     // ==========================================
-    // RETIRAR VEHÍCULO (FACTURACIÓN)
+    // RETIRAR VEHÍCULO (FACTURACIÓN - TRANSACCIONAL)
     // ==========================================
     public void retirarVehiculo(String placa) {
-        if (placa == null || placa.isBlank())
-            return;
+        if (placa == null || placa.isBlank()) return;
         String placaBusqueda = placa.toUpperCase().trim();
 
         String sqlBuscar = "SELECT v.tipo_vehiculo, v.fecha_ingreso, t.valor_hora " +
-                "FROM vehiculos_activos v " +
-                "JOIN tarifas t ON v.tipo_vehiculo = t.tipo_vehiculo " +
-                "WHERE v.placa = ?";
+                           "FROM vehiculos_activos v " +
+                           "JOIN tarifas t ON v.tipo_vehiculo = t.tipo_vehiculo " +
+                           "WHERE v.placa = ?";
 
-        try (Connection con = ConexionDB.getConexion()) {
-            con.setAutoCommit(false);
+        Connection con = null;
+        try {
+            con = ConexionDB.getConexion();
+            con.setAutoCommit(false); // <--- INICIO DE SEGURIDAD
 
             try (PreparedStatement psBuscar = con.prepareStatement(sqlBuscar)) {
                 psBuscar.setString(1, placaBusqueda);
-
                 try (ResultSet rs = psBuscar.executeQuery()) {
                     if (!rs.next()) {
                         System.out.println("❌ Error: Vehículo con placa '" + placaBusqueda + "' no encontrado.");
-                        con.rollback();
+                        con.rollback(); // Siempre rollback si no encontramos el vehículo para limpiar el estado
                         return;
                     }
 
+                    // Cálculos...
                     String tipoRaw = rs.getString("tipo_vehiculo");
                     LocalDateTime entrada = rs.getTimestamp("fecha_ingreso").toLocalDateTime();
                     double tarifaHora = rs.getDouble("valor_hora");
-
                     LocalDateTime salida = LocalDateTime.now();
                     long minutos = Duration.between(entrada, salida).toMinutes();
                     long horasFacturadas = Math.max(1, (long) Math.ceil(minutos / 60.0));
                     double totalAPagar = horasFacturadas * tarifaHora;
 
-                    String tipoPresentacion = TipoVehiculo.esValido(tipoRaw)
-                            ? TipoVehiculo.fromString(tipoRaw).toString()
-                            : tipoRaw;
-
-                    System.out.println("\n=====================================");
-                    System.out.println("           TICKET DE SALIDA          ");
-                    System.out.println("=====================================");
-                    System.out.println("Placa        : " + placaBusqueda);
-                    System.out.println("Tipo         : " + tipoPresentacion);
-                    System.out.println("Entrada      : " + entrada.format(FORMATO_FECHA));
-                    System.out.println("Salida       : " + salida.format(FORMATO_FECHA));
-                    System.out.println("Tiempo real  : " + minutos + " minuto(s)");
-                    System.out.println("Horas cobro  : " + horasFacturadas);
-                    System.out.println("Tarifa/Hora  : " + formatoMoneda(tarifaHora));
-                    System.out.println("-------------------------------------");
-                    System.out.println("TOTAL A PAGAR: " + formatoMoneda(totalAPagar));
-                    System.out.println("Usuario      : " + Sesion.getUsuarioActual());
-                    System.out.println("=====================================");
-
-                    // Se añade el campo usuario_responsable en la inserción al historial
+                    // INSERT
                     String sqlHistorial = "INSERT INTO historial_movimientos (placa, tipo_vehiculo, fecha_ingreso, fecha_salida, minutos_totales, total_pagado, usuario_responsable) VALUES (?, ?, ?, ?, ?, ?, ?)";
                     try (PreparedStatement psHistorial = con.prepareStatement(sqlHistorial)) {
                         psHistorial.setString(1, placaBusqueda);
@@ -190,27 +171,38 @@ public class Parqueadero {
                         psHistorial.setTimestamp(4, Timestamp.valueOf(salida));
                         psHistorial.setLong(5, minutos);
                         psHistorial.setDouble(6, totalAPagar);
-                        psHistorial.setString(7, Sesion.getUsuarioActual()); // Inyectamos el usuario de la sesión
+                        psHistorial.setString(7, Sesion.getUsuarioActual());
                         psHistorial.executeUpdate();
                     }
 
+                    // DELETE
                     String sqlDelete = "DELETE FROM vehiculos_activos WHERE placa = ?";
                     try (PreparedStatement psDelete = con.prepareStatement(sqlDelete)) {
                         psDelete.setString(1, placaBusqueda);
                         psDelete.executeUpdate();
                     }
 
-                    con.commit();
-                    System.out.println(
-                            "\n✅ Vehículo retirado y registrado en el historial por: " + Sesion.getUsuarioActual());
+                    con.commit(); // <--- FIN DE SEGURIDAD: Solo llega aquí si todo salió bien
+                    
+                    // Imprimir ticket solo si el commit fue exitoso
+                    System.out.println("\n✅ Vehículo retirado correctamente.");
                 }
-            } catch (SQLException e) {
-                con.rollback();
-                throw e;
+            } catch (Exception e) {
+                // Captura CUALQUIER error (SQL, NullPointer, etc.) y revierte
+                if (con != null) con.rollback(); 
+                throw e; // Relanzamos para que el catch exterior lo maneje
             }
-
-        } catch (SQLException e) {
-            System.out.println("❌ Error transaccional al retirar el vehículo: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("❌ Error transaccional crítico: " + e.getMessage());
+        } finally {
+            if (con != null) {
+                try {
+                    con.setAutoCommit(true); // Restaurar autocommit
+                    con.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
