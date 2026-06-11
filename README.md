@@ -149,27 +149,26 @@ Parqueadero (Service - Orquestador Funcional)
 
 Para garantizar la integridad y trazabilidad de las operaciones, el sistema implementa el siguiente flujo operativo:
 
-**Ingreso de Vehículo**
+1. **Ingreso de Vehículo**
 
 * **Validación:** El sistema verifica que la placa no esté registrada en el área activa.
 * **Acción:** Se realiza un INSERT en la tabla vehiculos_activos, capturando automáticamente el usuario_responsable desde la sesión activa del operador.
 * **Resultado:** El vehículo queda registrado dentro del sistema con total trazabilidad del operador que realizó la entrada.
 
-**Permanencia y Consulta**
+2. **Permanencia y Consulta**
 
 * **Acción:** El usuario consulta el estado actual del sistema mediante un SELECT a la tabla vehiculos_activos.
 * **Utilidad:** Permite visualizar la ocupación en tiempo real, filtrar vehículos y monitorear el tiempo de estancia.
 
-**Salida y Facturación (Transacción Crítica)**
+3. **Salida y Facturación (Transacción Crítica)**
 
 * **Cálculo:** Se procesa el tiempo transcurrido desde el ingreso hasta el momento exacto de la salida.
 * **Tarificación:** Se consulta la tarifa vigente en la tabla tarifas según el tipo de vehículo.
 * **Registro Histórico:** Se realiza un INSERT en la tabla historial_movimientos con todos los detalles: fechas, tiempos, valor pagado y el usuario_responsable que procesó la salida.
 * **Liberación:** Se ejecuta un DELETE en vehiculos_activos mediante una transacción segura para asegurar que el espacio se libere solo si el historial se guardó exitosamente.
-
 * **Resultado:** El movimiento se vuelve permanente y auditable para siempre en el historial de la empresa.
 
-**Gestión de Historial y Auditoría**
+4. **Gestión de Historial y Auditoría**
 
 * **Acción:** Consulta del flujo completo mediante un SELECT a historial_movimientos.
 * **Utilidad:** Permite generar reportes financieros precisos, métricas de rendimiento por operador y búsquedas detalladas de vehículos, manteniendo un control estricto de las operaciones financieras realizadas por cada usuario del sistema.
